@@ -1,0 +1,24 @@
+version: '3.5'
+services:
+  train:
+    volumes:
+      - .:/src
+      - /mnt/scratch/ssense/images_dump:/src/data/fashiongen
+    build:
+      shm_size: '8gb'
+      context: .
+    entrypoint: [python, train.py]
+
+  api:
+    image: pgan-api
+    build:
+      shm_size: '8gb'
+      context: .
+      dockerfile: Dockerfile.api
+    environment:
+      MODEL_PATH: ${MODEL_PATH}
+    volumes:
+      - /mnt/home/thomas/models_t_shirts/:/models
+      - .:/src
+    ports:
+      - "5000:5000"
