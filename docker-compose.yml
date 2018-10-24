@@ -1,13 +1,13 @@
 version: '3.5'
 services:
-  image: sr-train
   train:
-    volumes:
-      - .:/src
-      - /mnt/scratch/ssense/images_dump:/src/data/fashiongen
+    image: sr-train
     build:
       shm_size: '8gb'
       context: .
+    volumes:
+      - .:/src
+      - /mnt/scratch/ssense/images_dump:/src/data/fashiongen
     entrypoint: [python, train.py]
 
   api:
