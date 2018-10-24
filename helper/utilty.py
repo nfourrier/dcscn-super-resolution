@@ -38,12 +38,14 @@ class Timer:
         for i in range(self.timer_count):
             if self.counts[i] > 0:
                 total = 0
-                print("Average of %d: %s[ms]" % (i, "{:,}".format(self.times[i] * 1000 / self.counts[i])))
+                print("Average of %d: %s[ms]" % (i, "{:,}".format(
+                    self.times[i] * 1000 / self.counts[i])))
                 total += self.times[i]
                 print("Total of %d: %s" % (i, "{:,}".format(total)))
 
 
 # utilities for save / load
+
 
 class LoadError(Exception):
     def __init__(self, message):
@@ -64,7 +66,10 @@ def delete_dir(directory):
 def get_files_in_directory(path):
     if not path.endswith('/'):
         path = path + "/"
-    file_list = [path + f for f in listdir(path) if (isfile(join(path, f)) and not f.startswith('.'))]
+    file_list = [
+        path + f for f in listdir(path)
+        if (isfile(join(path, f)) and not f.startswith('.')) and 'png' in f
+    ]
     return file_list
 
 
@@ -145,10 +150,9 @@ def convert_rgb_to_ycbcr(image):
     if len(image.shape) < 2 or image.shape[2] == 1:
         return image
 
-    xform = np.array(
-        [[65.738 / 256.0, 129.057 / 256.0, 25.064 / 256.0],
-         [- 37.945 / 256.0, - 74.494 / 256.0, 112.439 / 256.0],
-         [112.439 / 256.0, - 94.154 / 256.0, - 18.285 / 256.0]])
+    xform = np.array([[65.738 / 256.0, 129.057 / 256.0, 25.064 / 256.0],
+                      [-37.945 / 256.0, -74.494 / 256.0, 112.439 / 256.0],
+                      [112.439 / 256.0, -94.154 / 256.0, -18.285 / 256.0]])
 
     ycbcr_image = image.dot(xform.T)
     ycbcr_image[:, :, 0] += 16.0
@@ -158,14 +162,14 @@ def convert_rgb_to_ycbcr(image):
 
 
 def convert_ycbcr_to_rgb(ycbcr_image):
-    rgb_image = np.zeros([ycbcr_image.shape[0], ycbcr_image.shape[1], 3])  # type: np.ndarray
+    rgb_image = np.zeros(
+        [ycbcr_image.shape[0], ycbcr_image.shape[1], 3])  # type: np.ndarray
 
     rgb_image[:, :, 0] = ycbcr_image[:, :, 0] - 16.0
     rgb_image[:, :, [1, 2]] = ycbcr_image[:, :, [1, 2]] - 128.0
-    xform = np.array(
-        [[298.082 / 256.0, 0, 408.583 / 256.0],
-         [298.082 / 256.0, -100.291 / 256.0, -208.120 / 256.0],
-         [298.082 / 256.0, 516.412 / 256.0, 0]])
+    xform = np.array([[298.082 / 256.0, 0, 408.583 / 256.0],
+                      [298.082 / 256.0, -100.291 / 256.0, -208.120 / 256.0],
+                      [298.082 / 256.0, 516.412 / 256.0, 0]])
     rgb_image = rgb_image.dot(xform.T)
 
     return rgb_image
@@ -231,18 +235,25 @@ def resize_image_by_pil(image, scale, resampling_method="bicubic"):
     return image
 
 
-def load_image(filename, width=0, height=0, channels=0, alignment=0, print_console=True):
+def load_image(filename,
+               width=0,
+               height=0,
+               channels=0,
+               alignment=0,
+               print_console=True):
     if not os.path.isfile(filename):
         raise LoadError("File not found [%s]" % filename)
 
     try:
         image = np.atleast_3d(misc.imread(filename))
 
-        if (width != 0 and image.shape[1] != width) or (height != 0 and image.shape[0] != height):
+        if (width != 0 and image.shape[1] != width) or (
+                height != 0 and image.shape[0] != height):
             raise LoadError("Attributes mismatch")
         if channels != 0 and image.shape[2] != channels:
             raise LoadError("Attributes mismatch")
-        if alignment != 0 and ((width % alignment) != 0 or (height % alignment) != 0):
+        if alignment != 0 and ((width % alignment) != 0 or
+                               (height % alignment) != 0):
             raise LoadError("Attributes mismatch")
 
         # if there is alpha plane, cut it
@@ -250,7 +261,8 @@ def load_image(filename, width=0, height=0, channels=0, alignment=0, print_conso
             image = image[:, :, 0:3]
 
         if print_console:
-            print("Loaded [%s]: %d x %d x %d" % (filename, image.shape[1], image.shape[0], image.shape[2]))
+            print("Loaded [%s]: %d x %d x %d" %
+                  (filename, image.shape[1], image.shape[0], image.shape[2]))
     except IndexError:
         print("IndexError: file:[%s] shape[%s]" % (filename, image.shape))
         return None
@@ -258,20 +270,28 @@ def load_image(filename, width=0, height=0, channels=0, alignment=0, print_conso
     return image
 
 
-def load_image_data(filename, width=0, height=0, channels=0, alignment=0, print_console=True):
+def load_image_data(filename,
+                    width=0,
+                    height=0,
+                    channels=0,
+                    alignment=0,
+                    print_console=True):
     if not os.path.isfile(filename):
         raise LoadError("File not found")
     image = np.load(filename)
 
-    if (width != 0 and image.shape[1] != width) or (height != 0 and image.shape[0] != height):
+    if (width != 0 and image.shape[1] != width) or (height != 0 and
+                                                    image.shape[0] != height):
         raise LoadError("Attributes mismatch")
     if channels != 0 and image.shape[2] != channels:
         raise LoadError("Attributes mismatch")
-    if alignment != 0 and ((width % alignment) != 0 or (height % alignment) != 0):
+    if alignment != 0 and ((width % alignment) != 0 or
+                           (height % alignment) != 0):
         raise LoadError("Attributes mismatch")
 
     if print_console:
-        print("Loaded [%s]: %d x %d x %d" % (filename, image.shape[1], image.shape[0], image.shape[2]))
+        print("Loaded [%s]: %d x %d x %d" %
+              (filename, image.shape[1], image.shape[0], image.shape[2]))
     return image
 
 
@@ -295,25 +315,32 @@ def get_split_images(image, window_size, stride=None, enable_duplicate=False):
 
     shape = (new_height, new_width, window_size, window_size)
     strides = size * np.array([width * stride, stride, width, 1])
-    windows = np.lib.stride_tricks.as_strided(image, shape=shape, strides=strides)
-    windows = windows.reshape(windows.shape[0] * windows.shape[1], windows.shape[2], windows.shape[3], 1)
+    windows = np.lib.stride_tricks.as_strided(
+        image, shape=shape, strides=strides)
+    windows = windows.reshape(windows.shape[0] * windows.shape[1],
+                              windows.shape[2], windows.shape[3], 1)
 
     if enable_duplicate:
         extra_windows = []
         if (height - window_size) % stride != 0:
             for x in range(0, width - window_size, stride):
-                extra_windows.append(image[height - window_size - 1:height - 1, x:x + window_size:])
+                extra_windows.append(image[height - window_size - 1:height - 1,
+                                           x:x + window_size:])
 
         if (width - window_size) % stride != 0:
             for y in range(0, height - window_size, stride):
-                extra_windows.append(image[y: y + window_size, width - window_size - 1:width - 1])
+                extra_windows.append(image[y:y + window_size, width -
+                                           window_size - 1:width - 1])
 
         if len(extra_windows) > 0:
             org_size = windows.shape[0]
-            windows = np.resize(windows,
-                                [org_size + len(extra_windows), windows.shape[1], windows.shape[2], windows.shape[3]])
+            windows = np.resize(windows, [
+                org_size + len(extra_windows), windows.shape[1],
+                windows.shape[2], windows.shape[3]
+            ])
             for i in range(len(extra_windows)):
-                extra_windows[i] = extra_windows[i].reshape([extra_windows[i].shape[0], extra_windows[i].shape[1], 1])
+                extra_windows[i] = extra_windows[i].reshape(
+                    [extra_windows[i].shape[0], extra_windows[i].shape[1], 1])
                 windows[org_size + i] = extra_windows[i]
 
     return windows
@@ -363,7 +390,8 @@ def upsample_filter(size):
         center = factor - 0.5
     og = np.ogrid[:size, :size]
 
-    return (1 - abs(og[0] - center) / factor) * (1 - abs(og[1] - center) / factor)
+    return (1 - abs(og[0] - center) / factor) * (
+        1 - abs(og[1] - center) / factor)
 
 
 def get_upscale_filter_size(scale):
@@ -373,7 +401,8 @@ def get_upscale_filter_size(scale):
 def upscale_weight(scale, channels, name="weight"):
     cnn_size = get_upscale_filter_size(scale)
 
-    initial = np.zeros(shape=[cnn_size, cnn_size, channels, channels], dtype=np.float32)
+    initial = np.zeros(
+        shape=[cnn_size, cnn_size, channels, channels], dtype=np.float32)
     filter_matrix = upsample_filter(cnn_size)
 
     for i in range(channels):
@@ -382,13 +411,18 @@ def upscale_weight(scale, channels, name="weight"):
     return tf.Variable(initial, name=name)
 
 
-def weight(shape, stddev=0.01, name="weight", uniform=False, initializer="stddev"):
+def weight(shape,
+           stddev=0.01,
+           name="weight",
+           uniform=False,
+           initializer="stddev"):
     if initializer == "xavier":
         initial = xavier_cnn_initializer(shape, uniform=uniform)
     elif initializer == "he":
         initial = he_initializer(shape)
     elif initializer == "uniform":
-        initial = tf.random_uniform(shape, minval=-2.0 * stddev, maxval=2.0 * stddev)
+        initial = tf.random_uniform(
+            shape, minval=-2.0 * stddev, maxval=2.0 * stddev)
     elif initializer == "stddev":
         initial = tf.truncated_normal(shape=shape, stddev=stddev)
     elif initializer == "identity":
@@ -416,7 +450,14 @@ def bias(shape, initial_value=0.0, name=None):
 
 # utilities for logging -----
 
-def add_summaries(scope_name, model_name, var, header_name="", save_stddev=True, save_mean=False, save_max=False,
+
+def add_summaries(scope_name,
+                  model_name,
+                  var,
+                  header_name="",
+                  save_stddev=True,
+                  save_mean=False,
+                  save_max=False,
                   save_min=False):
     with tf.name_scope(scope_name):
         mean_var = tf.reduce_mean(var)
@@ -428,25 +469,34 @@ def add_summaries(scope_name, model_name, var, header_name="", save_stddev=True,
             tf.summary.scalar(header_name + "stddev/" + model_name, stddev_var)
 
         if save_max:
-            tf.summary.scalar(header_name + "max/" + model_name, tf.reduce_max(var))
+            tf.summary.scalar(header_name + "max/" + model_name,
+                              tf.reduce_max(var))
 
         if save_min:
-            tf.summary.scalar(header_name + "min/" + model_name, tf.reduce_min(var))
+            tf.summary.scalar(header_name + "min/" + model_name,
+                              tf.reduce_min(var))
         tf.summary.histogram(header_name + model_name, var)
 
 
 def log_scalar_value(writer, name, value, step):
-    summary = tf.Summary(value=[tf.Summary.Value(tag=name, simple_value=value)])
+    summary = tf.Summary(
+        value=[tf.Summary.Value(tag=name, simple_value=value)])
     writer.add_summary(summary, step)
 
 
-def log_fcn_output_as_images(image, width, height, filters, model_name, max_outputs=20):
+def log_fcn_output_as_images(image,
+                             width,
+                             height,
+                             filters,
+                             model_name,
+                             max_outputs=20):
     """
     input tensor should be [ N, H * W * C ]
     so transform to [ N H W C ] and visualize only first channel
     """
     reshaped_image = tf.reshape(image, [-1, height, width, filters])
-    tf.summary.image(model_name, reshaped_image[:, :, :, :1], max_outputs=max_outputs)
+    tf.summary.image(
+        model_name, reshaped_image[:, :, :, :1], max_outputs=max_outputs)
 
 
 def log_cnn_weights_as_images(model_name, weights, max_outputs=20):
@@ -455,9 +505,11 @@ def log_cnn_weights_as_images(model_name, weights, max_outputs=20):
     so transform to [ In_Ch * Out_Ch, W, H ] and visualize it
     """
     shapes = get_shapes(weights)
-    weights = tf.reshape(weights, [shapes[0], shapes[1], shapes[2] * shapes[3]])
+    weights = tf.reshape(weights,
+                         [shapes[0], shapes[1], shapes[2] * shapes[3]])
     weights_transposed = tf.transpose(weights, [2, 0, 1])
-    weights_transposed = tf.reshape(weights_transposed, [shapes[2] * shapes[3], shapes[0], shapes[1], 1])
+    weights_transposed = tf.reshape(
+        weights_transposed, [shapes[2] * shapes[3], shapes[0], shapes[1], 1])
     tf.summary.image(model_name, weights_transposed, max_outputs=max_outputs)
 
 
@@ -467,7 +519,8 @@ def get_shapes(input_tensor):
 
 def get_now_date():
     d = datetime.datetime.today()
-    return "%s/%s/%s %s:%s:%s" % (d.year, d.month, d.day, d.hour, d.minute, d.second)
+    return "%s/%s/%s %s:%s:%s" % (d.year, d.month, d.day, d.hour, d.minute,
+                                  d.second)
 
 
 def get_loss_image(image1, image2, scale=1.0, border_size=0):
@@ -476,7 +529,8 @@ def get_loss_image(image1, image2, scale=1.0, border_size=0):
     if len(image2.shape) == 2:
         image2 = image2.reshape(image2.shape[0], image2.shape[1], 1)
 
-    if image1.shape[0] != image2.shape[0] or image1.shape[1] != image2.shape[1] or image1.shape[2] != image2.shape[2]:
+    if image1.shape[0] != image2.shape[0] or image1.shape[1] != image2.shape[
+            1] or image1.shape[2] != image2.shape[2]:
         return None
 
     image1 = trim_image_as_file(image1)
@@ -485,7 +539,8 @@ def get_loss_image(image1, image2, scale=1.0, border_size=0):
     loss_image = np.multiply(np.square(np.subtract(image1, image2)), scale)
     loss_image = np.minimum(loss_image, 255.0)
     if border_size > 0:
-        loss_image = loss_image[border_size:-border_size, border_size:-border_size, :]
+        loss_image = loss_image[border_size:-border_size, border_size:
+                                -border_size, :]
 
     return loss_image
 
@@ -505,7 +560,8 @@ def compute_psnr_and_ssim(image1, image2, border_size=0):
     if len(image2.shape) == 2:
         image2 = image2.reshape(image2.shape[0], image2.shape[1], 1)
 
-    if image1.shape[0] != image2.shape[0] or image1.shape[1] != image2.shape[1] or image1.shape[2] != image2.shape[2]:
+    if image1.shape[0] != image2.shape[0] or image1.shape[1] != image2.shape[
+            1] or image1.shape[2] != image2.shape[2]:
         return None
 
     image1 = trim_image_as_file(image1)
@@ -516,8 +572,16 @@ def compute_psnr_and_ssim(image1, image2, border_size=0):
         image2 = image2[border_size:-border_size, border_size:-border_size, :]
 
     psnr = compare_psnr(image1, image2, data_range=255)
-    ssim = compare_ssim(image1, image2, win_size=11, gaussian_weights=True, multichannel=True, K1=0.01, K2=0.03,
-                        sigma=1.5, data_range=255)
+    ssim = compare_ssim(
+        image1,
+        image2,
+        win_size=11,
+        gaussian_weights=True,
+        multichannel=True,
+        K1=0.01,
+        K2=0.03,
+        sigma=1.5,
+        data_range=255)
     return psnr, ssim
 
 
@@ -551,7 +615,8 @@ def get_psnr(mse, max_value=255.0):
     return psnr
 
 
-def print_num_of_total_parameters(output_detail=False, output_to_logging=False):
+def print_num_of_total_parameters(output_detail=False,
+                                  output_to_logging=False):
     total_parameters = 0
     parameters_string = ""
 
@@ -563,18 +628,22 @@ def print_num_of_total_parameters(output_detail=False, output_to_logging=False):
             variable_parameters *= dim.value
         total_parameters += variable_parameters
         if len(shape) == 1:
-            parameters_string += ("%s %d, " % (variable.name, variable_parameters))
+            parameters_string += ("%s %d, " %
+                                  (variable.name, variable_parameters))
         else:
-            parameters_string += ("%s %s=%d, " % (variable.name, str(shape), variable_parameters))
+            parameters_string += ("%s %s=%d, " % (variable.name, str(shape),
+                                                  variable_parameters))
 
     if output_to_logging:
         if output_detail:
             logging.info(parameters_string)
-        logging.info("Total %d variables, %s params" % (len(tf.trainable_variables()), "{:,}".format(total_parameters)))
+        logging.info("Total %d variables, %s params" % (
+            len(tf.trainable_variables()), "{:,}".format(total_parameters)))
     else:
         if output_detail:
             print(parameters_string)
-        print("Total %d variables, %s params" % (len(tf.trainable_variables()), "{:,}".format(total_parameters)))
+        print("Total %d variables, %s params" %
+              (len(tf.trainable_variables()), "{:,}".format(total_parameters)))
 
 
 def flip(image, flip_type, invert=False):
