@@ -57,14 +57,16 @@ def predict():
     data = np.array(img)
     print(data.shape)
 
+    print(data.min(), data.max())
     # with sess.as_default():
     #     with sess.graph.as_default():
     #         image = model.predict_im(data)
     image = model.predict_im(data)
     print(image.shape)
+    print(image.min(), image.max())
     # Convert array to Image
-    image = misc.toimage(image, cmin=0, cmax=255)  # to avoid range rescaling
-    img = PIL.Image.fromarray(image)
+    img = misc.toimage(image, cmin=0, cmax=255)  # to avoid range rescaling
+    # img = PIL.Image.fromarray(image)
     img_io = io.BytesIO()
     img.save(img_io, format='PNG')
     img_io.seek(0)
