@@ -31,7 +31,7 @@ def load_model(flags, model_path):
     model.build_summary_saver()
 
     model.init_all_variables()
-    model.load_model()
+    model.load_model(name=model_path)
     return model
 
 
