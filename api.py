@@ -10,6 +10,7 @@ from flask_cors import CORS
 import numpy as np
 import PIL
 from PIL import Image
+from scipy import misc
 import tensorflow as tf
 import DCSCN
 from helper import args
@@ -62,6 +63,7 @@ def predict():
     image = model.predict_im(data)
     print(image.shape)
     # Convert array to Image
+    image = misc.toimage(image, cmin=0, cmax=255)  # to avoid range rescaling
     img = PIL.Image.fromarray(image)
     img_io = io.BytesIO()
     img.save(img_io, format='PNG')
