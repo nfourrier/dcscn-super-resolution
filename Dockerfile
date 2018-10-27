@@ -3,7 +3,7 @@ RUN mkdir /src
 WORKDIR /src
 COPY . /src
 
-RUN pip install scikit-image pillow scipy>=1.1.0
+RUN pip install scikit-image pillow scipy>=1.1.0 flaks flask-cors
 
 
 CMD ["python", "api.py"]
