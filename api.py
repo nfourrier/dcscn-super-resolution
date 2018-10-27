@@ -36,15 +36,6 @@ def load_model(flags, model_path):
     return model
 
 
-# Initialize TensorFlow session.
-# not sure this will work
-# tf.InteractiveSession()
-# sess = tf.Session()
-
-
-# with sess.as_default():
-#     with sess.graph.as_default():
-#         model = load_model(FLAGS, MODEL_PATH)
 model = load_model(FLAGS, MODEL_PATH)
 
 
