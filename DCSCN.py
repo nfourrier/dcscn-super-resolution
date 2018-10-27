@@ -534,6 +534,18 @@ class SuperResolution(tf_graph.TensorflowGraph):
 
         return hr_image
 
+    def predict_im(self, org_image):
+
+        if len(org_image.shape) >= 3 and org_image.shape[2] == 3 and self.channels == 1:
+            input_y_image = util.convert_rgb_to_y(org_image)
+            output_y_image = self.do(input_y_image)
+            scaled_ycbcr_image = util.convert_rgb_to_ycbcr(
+                util.resize_image_by_pil(org_image, self.scale, self.resampling_method))
+            image = util.convert_y_and_cbcr_to_rgb(output_y_image, scaled_ycbcr_image[:, :, 1:3])
+        else:
+            image = self.do(org_image)
+        return image
+
     def do_for_file(self, file_path, output_folder="output"):
 
         org_image = util.load_image(file_path)
