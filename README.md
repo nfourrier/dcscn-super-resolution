@@ -117,6 +117,19 @@ python train.py --dataset=bsd200 --training_images=80000 --pixel_shuffler=false
 * When you use evaluate.py / sr.py, please use completely same args with training so that the script can load your own learned **"model name".ckpt**.
 
 
+### Docker-compose to build and nvidia-docker to train
+The config needed to build the images is in the `docker-compose.yml` file.
+After the services are built launch the image with `nvidia-docker`.
+To train a model:
+
+```
+NV_GPU=0 nvidia-docker run -it -v /mnt/scratch/ssense/images_png_dump_t_shirts/:/src/data/fashiongen -v /mnt/home/thomas/github/dcscn-super-resolution/data/set5:/src/data/set5 --name=super_res_test sr-train bash
+```
+To serve a model:
+```
+NV_GPU=0 nvidia-docker run -it -v /mnt/home/thomas/models_sr:/src/models --name=super_res_test sr-train
+```
+
 ### Using small model for training/test (for CPU)
 
 In case 1)you're using CPU, 2)training data is small or 3)just want to test if it works, I recommend you to use smaller model. And 8 layers with 96 filters model has enough performance for my DCSCN. When you're using CPU, 4-6 layers with 32-64 filters would be a good starting point.

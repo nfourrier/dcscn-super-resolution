@@ -5,5 +5,4 @@ COPY . /src
 
 RUN pip install scikit-image pillow scipy>=1.1.0 flask flask-cors
 
-
 CMD ["python", "api.py"]
