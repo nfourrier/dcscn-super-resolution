@@ -11,15 +11,15 @@ services:
     entrypoint: [python, train.py]
 
   api:
-    image: pgan-api
+    image: sr-api
     build:
       shm_size: '8gb'
       context: .
-      dockerfile: Dockerfile.api
+      dockerfile: Dockerfile
     environment:
       MODEL_PATH: ${MODEL_PATH}
     volumes:
       - /mnt/home/thomas/models_t_shirts/:/models
       - .:/src
     ports:
-      - "5000:5000"
+      - "5001:5001"
