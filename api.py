@@ -62,7 +62,7 @@ def predict():
     image = model.predict_im(data)
     print(image.shape)
     # Convert array to Image
-    img = PIL.Image.fromarray(image[0])
+    img = PIL.Image.fromarray(image)
     img_io = io.BytesIO()
     img.save(img_io, format='PNG')
     img_io.seek(0)
