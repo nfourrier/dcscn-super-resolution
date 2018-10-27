@@ -17,7 +17,7 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      MODEL_PATH: ${MODEL_PATH}
+      - MODEL_PATH: ${MODEL_PATH}
     volumes:
       - /mnt/home/thomas/models_sr/:/src/models
       - .:/src
