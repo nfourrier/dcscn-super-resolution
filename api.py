@@ -39,12 +39,13 @@ def load_model(flags, model_path):
 # Initialize TensorFlow session.
 # not sure this will work
 # tf.InteractiveSession()
-sess = tf.Session()
+# sess = tf.Session()
 
 
-with sess.as_default():
-    with sess.graph.as_default():
-        model = load_model(FLAGS, MODEL_PATH)
+# with sess.as_default():
+#     with sess.graph.as_default():
+#         model = load_model(FLAGS, MODEL_PATH)
+model = load_model(FLAGS, MODEL_PATH)
 
 
 @api.route("/healthcheck")
@@ -64,9 +65,10 @@ def predict():
     data = np.array(img)
     print(data.shape)
 
-    with sess.as_default():
-        with sess.graph.as_default():
-            image = model.predict_im(data)
+    # with sess.as_default():
+    #     with sess.graph.as_default():
+    #         image = model.predict_im(data)
+    image = model.predict_im(data)
     print(image.shape)
     # Convert array to Image
     img = PIL.Image.fromarray(image[0])
