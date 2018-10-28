@@ -22,7 +22,7 @@ CORS(api)
 args.flags.DEFINE_string("file", "image.jpg", "Target filename")
 FLAGS = args.get()
 
-print(FLAGS)
+FLAGS.scale = 3
 
 MODEL_PATH = os.environ.get("MODEL_PATH")
 print(MODEL_PATH)
